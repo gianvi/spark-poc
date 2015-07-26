@@ -12,9 +12,10 @@ abstract trait SparkJob[U] {
   def execute(implicit sc: SparkContext): U
 
   def run(implicit sc: SparkContext): Unit = {
+    val start = System.currentTimeMillis()
     log.info(s"job execution started")
     val res = execute
-    log.info(s"job execution done")
+    log.info(s"job execution done in ${(System.currentTimeMillis() - start) / 100 / 10.0}s")
 
     next match {
       case None => execute
