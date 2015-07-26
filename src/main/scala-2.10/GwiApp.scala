@@ -1,14 +1,14 @@
-import jobs.{LogisticRegressionJob, HeadlessCsvToLabeledPoints}
+import jobs.{EvaluateModelJob, HeadlessCsvToLabeledPoints, LogisticRegressionJob}
 import ngn.spark._
-import org.apache.spark.sql.DataFrame
 
 object GwiApp extends SparkJobApp {
   args.toList.head match {
     case "train" => run(
       new HeadlessCsvToLabeledPoints() andThen {
-        new LogisticRegressionJob(_)
+        new LogisticRegressionJob(_, "features", "label") andThen {
+          new EvaluateModelJob(_)
+        }
       }
     )
   }
 }
-
