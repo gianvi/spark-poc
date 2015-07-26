@@ -28,16 +28,22 @@ class HeadlessCsvToLabeledPoints extends SparkJob with Serializable with JobRunn
       .collect()
       .toList
       .sorted
+      .filterNot(_ == "q20_1_5")
 
     // Create binary data
     val df = data
       .map(_.split(",").toList)
       .map { l =>
-      headers.map { h => l.contains(h) }
+      ( if(l.contains("q20_1_5")) 1.0 else 0.0,
+        headers
+          .map { h =>
+          l.contains(h)
+        }
+          .map(bool2Double)
+        )
     }
 
-      .map(_.map(bool2Double))
-      .map(v => LabeledPoint(v.head, Vectors.dense(v.toArray)))
+      .map(v => LabeledPoint(v._1, Vectors.dense(v._2.toArray)))
       .toDF()
 
     run(new LogisticRegressionJob(df))

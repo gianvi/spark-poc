@@ -13,7 +13,7 @@ class LogisticRegressionJob(df: DataFrame) extends SparkJob with SparkMl with Se
   def execute(implicit sc: SparkContext): Unit = {
     // Split training and test data
     val training :: test :: Nil = splitData(
-      df.withColumn("labelString", df("label").cast(StringType)), List(.85, .15)
+      df.withColumn("labelString", df("label").cast(StringType)), List(0.9, .1)
     )
 
     // Create linear regression and a pipeline
@@ -24,9 +24,9 @@ class LogisticRegressionJob(df: DataFrame) extends SparkJob with SparkMl with Se
     val lir = new LogisticRegression()
       .setFeaturesCol("features")
       .setLabelCol("indexedLabel")
-      .setRegParam(0.0)
+      .setRegParam(0.2)
       .setElasticNetParam(0.0)
-      .setMaxIter(500)
+      .setMaxIter(1000)
       .setTol(1E-6)
 
     val pipeline = new Pipeline().setStages(Array(
