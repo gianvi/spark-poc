@@ -7,7 +7,7 @@ import org.apache.spark.sql.{SQLContext, DataFrame}
 /**
  * Created by petr on 25/07/2015.
  */
-trait SparkMl extends SparkSql {
+trait SparkMl {
   def load(path: String, dataFormat: String)(implicit sc: SparkContext, sqlContext: SQLContext) =
     new DataLoader(sc, sqlContext).load(path, dataFormat)
 
