@@ -11,9 +11,9 @@ trait SparkJobApp extends App with JobRunner {
 }
 
 trait JobRunner {
-  def run[T <: SparkJob](job: T)(implicit sc: SparkContext): Unit = {
+  def run[T <: SparkJob[_]](job: T)(implicit sc: SparkContext): Unit = {
     try {
-      job.execute(sc)
+      job.run(sc)
     } finally {
       sc.stop()
     }

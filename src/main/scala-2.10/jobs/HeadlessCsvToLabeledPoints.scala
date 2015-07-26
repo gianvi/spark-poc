@@ -4,15 +4,17 @@ import ngn.spark.{JobRunner, SparkJob}
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
-import org.apache.spark.sql.SQLContext
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
-class HeadlessCsvToLabeledPoints extends SparkJob with Serializable with JobRunner {
+class HeadlessCsvToLabeledPoints extends SparkJob[DataFrame] with Serializable {
   def bool2Double(bool: Boolean) =
     if (bool) 1.0 else 0.0
 
-  def execute(implicit sc: SparkContext): Unit = {
+  def execute(implicit sc: SparkContext): DataFrame = {
     val sqlContext = new SQLContext(sc)
     import sqlContext.implicits._
+
+    val label = "q20_1_5"
 
     // Load data
     val data = sc
@@ -28,24 +30,21 @@ class HeadlessCsvToLabeledPoints extends SparkJob with Serializable with JobRunn
       .collect()
       .toList
       .sorted
-      .filterNot(_ == "q20_1_5")
+      .filterNot(_ == label)
 
     // Create binary data
-    val df = data
+    data
       .map(_.split(",").toList)
       .map { l =>
-      ( if(l.contains("q20_1_5")) 1.0 else 0.0,
-        headers
-          .map { h =>
-          l.contains(h)
-        }
-          .map(bool2Double)
-        )
+      val features = headers
+        .map { h =>
+        l.contains(h)
+      }
+        .map(bool2Double)
+        .toArray
+
+      LabeledPoint(if(l.contains(label)) 1.0 else 0.0, Vectors.dense(features))
     }
-
-      .map(v => LabeledPoint(v._1, Vectors.dense(v._2.toArray)))
       .toDF()
-
-    run(new LogisticRegressionJob(df))
   }
 }

@@ -9,12 +9,12 @@ import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StringType
 
-class LogisticRegressionJob(df: DataFrame) extends SparkJob with SparkMl with Serializable {
+class LogisticRegressionJob(df: DataFrame) extends SparkJob[Unit] with SparkMl with Serializable {
   def execute(implicit sc: SparkContext): Unit = {
     // Split training and test data
     val training :: test :: Nil = splitData(
       df.withColumn("labelString", df("label").cast(StringType)), List(0.9, .1)
-    )
+    ).map(_.cache)
 
     // Create linear regression and a pipeline
     val labelIndexer = new StringIndexer()
