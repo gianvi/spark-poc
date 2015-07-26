@@ -40,8 +40,9 @@ class TrainJob extends SparkJob with SparkMl with Serializable {
     val df = data
       .map(_.split(",").toList)
       .map { l =>
-      headers.map(h => l.contains(h))
+      headers.map { h => l.contains(h) }
     }
+
       .map(_.map(bool2Double))
       .map(v => LabeledPoint(v.head, Vectors.dense(v.toArray)))
       .toDF()
@@ -57,7 +58,7 @@ class TrainJob extends SparkJob with SparkMl with Serializable {
     val labelIndexer = new StringIndexer()
       .setInputCol("labelString")
       .setOutputCol("indexedLabel")
-    
+
     val lir = new LogisticRegression()
       .setFeaturesCol("features")
       .setLabelCol("indexedLabel")
