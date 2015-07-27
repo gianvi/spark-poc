@@ -9,7 +9,7 @@ import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StringType
 
-class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String)
+class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String, testSetFraction: Double = .1)
   extends SparkJob[PipelineModel]
   with SparkMl
   with Serializable {
@@ -17,7 +17,8 @@ class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: Str
   def execute(implicit sc: SparkContext): PipelineModel = {
     // Split training and test data
     val training :: test :: Nil = splitData(
-      df.withColumn("labelString", df(labelColumn).cast(StringType)), List(0.9, .1)
+      df.withColumn("labelString", df(labelColumn).cast(StringType)),
+      List(1 - testSetFraction, testSetFraction)
     ).map(_.cache)
 
     // Create linear regression and a pipeline
@@ -25,7 +26,7 @@ class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: Str
       .setInputCol("labelString")
       .setOutputCol("indexedLabel")
 
-    val lir = new classification.LogisticRegression()
+    val regression = new classification.LogisticRegression()
       .setFeaturesCol(featuresColumn)
       .setLabelCol("indexedLabel")
       .setRegParam(0.2)
@@ -34,7 +35,7 @@ class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: Str
       .setTol(1E-6)
 
     val pipeline = new Pipeline().setStages(Array(
-      labelIndexer, lir
+      labelIndexer, regression
     ))
 
     // Train
