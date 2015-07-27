@@ -4,12 +4,16 @@ import ngn.spark.SparkJob
 import ngn.spark.ml.SparkMl
 import org.apache.spark.SparkContext
 import org.apache.spark.ml.{PipelineModel, Pipeline}
-import org.apache.spark.ml.classification.LogisticRegression
+import org.apache.spark.ml._
 import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StringType
 
-class LogisticRegressionJob(df: DataFrame, featuresColumn: String, labelColumn: String) extends SparkJob[PipelineModel] with SparkMl with Serializable {
+class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String)
+  extends SparkJob[PipelineModel]
+  with SparkMl
+  with Serializable {
+
   def execute(implicit sc: SparkContext): PipelineModel = {
     // Split training and test data
     val training :: test :: Nil = splitData(
@@ -21,7 +25,7 @@ class LogisticRegressionJob(df: DataFrame, featuresColumn: String, labelColumn: 
       .setInputCol("labelString")
       .setOutputCol("indexedLabel")
 
-    val lir = new LogisticRegression()
+    val lir = new classification.LogisticRegression()
       .setFeaturesCol(featuresColumn)
       .setLabelCol("indexedLabel")
       .setRegParam(0.2)
@@ -42,4 +46,5 @@ class LogisticRegressionJob(df: DataFrame, featuresColumn: String, labelColumn: 
 
     model
   }
+
 }

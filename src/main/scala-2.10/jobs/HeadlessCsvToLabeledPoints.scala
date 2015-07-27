@@ -6,7 +6,7 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
-class HeadlessCsvToLabeledPoints extends SparkJob[DataFrame] with Serializable {
+class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColumn: String) extends SparkJob[DataFrame] with Serializable {
   def bool2Double(bool: Boolean) =
     if (bool) 1.0 else 0.0
 
@@ -14,11 +14,9 @@ class HeadlessCsvToLabeledPoints extends SparkJob[DataFrame] with Serializable {
     val sqlContext = new SQLContext(sc)
     import sqlContext.implicits._
 
-    val label = "q20_1_5"
-
     // Load data
     val data = sc
-      .textFile("data/gwi.txt")
+      .textFile(path, minPartitions)
       .coalesce(1)
       .cache()
 
@@ -30,7 +28,7 @@ class HeadlessCsvToLabeledPoints extends SparkJob[DataFrame] with Serializable {
       .collect()
       .toList
       .sorted
-      .filterNot(_ == label)
+      .filterNot(_ == labelColumn)
 
     // Create binary data
     data
@@ -43,7 +41,7 @@ class HeadlessCsvToLabeledPoints extends SparkJob[DataFrame] with Serializable {
         .map(bool2Double)
         .toArray
 
-      LabeledPoint(if(l.contains(label)) 1.0 else 0.0, Vectors.dense(features))
+      LabeledPoint(if(l.contains(labelColumn)) 1.0 else 0.0, Vectors.dense(features))
     }
       .toDF()
   }

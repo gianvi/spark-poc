@@ -1,8 +1,7 @@
 package ngn.spark.ml
 
-import ngn.spark.{SparkJob, SparkSql}
 import org.apache.spark.SparkContext
-import org.apache.spark.sql.{SQLContext, DataFrame}
+import org.apache.spark.sql.{DataFrame, SQLContext}
 
 /**
  * Created by petr on 25/07/2015.

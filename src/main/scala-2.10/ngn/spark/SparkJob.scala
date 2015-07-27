@@ -1,8 +1,7 @@
 package ngn.spark
 
 import org.apache.log4j.Logger
-import org.apache.spark.sql.DataFrame
-import org.apache.spark.{SparkConf, SparkContext}
+import org.apache.spark.SparkContext
 
 abstract trait SparkJob[U] {
   @transient lazy val log = Logger.getLogger(getClass.getName)
@@ -27,7 +26,9 @@ abstract trait SparkJob[U] {
     }
   }
 
-  def andThen[T <: SparkJob[_]](job: (U) => T)(implicit sc: SparkContext) = {
+  def map(job: (U) => Unit) = this
+
+  def flatMap[T <: SparkJob[_]](job: (U) => T) = {
     next = Some(job)
 
     this
