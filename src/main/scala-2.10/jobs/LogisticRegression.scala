@@ -3,13 +3,13 @@ package jobs
 import ngn.spark.SparkJob
 import ngn.spark.ml.SparkMl
 import org.apache.spark.SparkContext
-import org.apache.spark.ml.{PipelineModel, Pipeline}
-import org.apache.spark.ml._
 import org.apache.spark.ml.feature.StringIndexer
+import org.apache.spark.ml.{Pipeline, PipelineModel, _}
+import org.apache.spark.mllib.linalg.{Vector => Vec}
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.types.StringType
 
-class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String, testSetFraction: Double = .1)
+class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String, testSetFraction: Double = .4)
   extends SparkJob[PipelineModel]
   with SparkMl
   with Serializable {
@@ -49,3 +49,5 @@ class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: Str
   }
 
 }
+
+

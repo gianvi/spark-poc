@@ -6,9 +6,9 @@ import org.apache.spark.mllib.linalg.Vectors
 import org.apache.spark.mllib.regression.LabeledPoint
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
-class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColumn: String) extends SparkJob[DataFrame] with Serializable {
-  def bool2Double(bool: Boolean) =
-    if (bool) 1.0 else 0.0
+class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColumn: String)
+  extends SparkJob[DataFrame]
+  with Serializable {
 
   def execute(implicit sc: SparkContext): DataFrame = {
     val sqlContext = new SQLContext(sc)
@@ -45,4 +45,7 @@ class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColu
     }
       .toDF()
   }
+
+  def bool2Double(bool: Boolean) =
+    if (bool) 1.0 else 0.0
 }

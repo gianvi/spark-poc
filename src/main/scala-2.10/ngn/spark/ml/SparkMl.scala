@@ -3,9 +3,6 @@ package ngn.spark.ml
 import org.apache.spark.SparkContext
 import org.apache.spark.sql.{DataFrame, SQLContext}
 
-/**
- * Created by petr on 25/07/2015.
- */
 trait SparkMl {
   def load(path: String, dataFormat: String)(implicit sc: SparkContext, sqlContext: SQLContext) =
     new DataLoader(sc, sqlContext).load(path, dataFormat)
