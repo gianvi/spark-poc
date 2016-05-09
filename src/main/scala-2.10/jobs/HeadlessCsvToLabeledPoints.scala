@@ -10,8 +10,7 @@ class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColu
   extends SparkJob[DataFrame]
   with Serializable {
 
-  def execute(implicit sc: SparkContext): DataFrame = {
-    val sqlContext = new SQLContext(sc)
+  override def execute(implicit sc: SparkContext, sqlContext: SQLContext): DataFrame = {
     import sqlContext.implicits._
 
     // Load data
@@ -24,8 +23,8 @@ class HeadlessCsvToLabeledPoints(path: String, minPartitions: Int = 8, labelColu
     val headers = data
       .map(_.split(",").toList)
       .flatMap(l => l)
-      .distinct()
-      .collect()
+      .distinct
+      .collect
       .toList
       .sorted
       .filterNot(_ == labelColumn)
