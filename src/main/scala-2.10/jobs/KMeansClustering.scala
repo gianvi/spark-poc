@@ -5,14 +5,14 @@ import ngn.spark.ml.SparkMl
 import org.apache.spark.SparkContext
 import org.apache.spark.mllib.clustering.{KMeans, KMeansModel}
 import org.apache.spark.mllib.linalg.{Vector => Vec}
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{SQLContext, DataFrame}
 
 class KMeansClustering(df: DataFrame, featuresColumn: String)
   extends SparkJob[KMeansModel]
   with SparkMl
   with Serializable {
 
-  def execute(implicit sc: SparkContext): KMeansModel = {
+  override def execute(implicit sc: SparkContext, sqlContext: SQLContext): KMeansModel = {
     val rdd = df
       .select(df(featuresColumn))
       .map(_(0).asInstanceOf[Vec])

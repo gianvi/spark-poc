@@ -6,7 +6,7 @@ import org.apache.spark.SparkContext
 import org.apache.spark.ml.feature.StringIndexer
 import org.apache.spark.ml.{Pipeline, PipelineModel, _}
 import org.apache.spark.mllib.linalg.{Vector => Vec}
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{SQLContext, DataFrame}
 import org.apache.spark.sql.types.StringType
 
 class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: String, testSetFraction: Double = .4)
@@ -14,7 +14,7 @@ class LogisticRegression(df: DataFrame, featuresColumn: String, labelColumn: Str
   with SparkMl
   with Serializable {
 
-  def execute(implicit sc: SparkContext): PipelineModel = {
+  override def execute(implicit sc: SparkContext, sqlContext: SQLContext): PipelineModel = {
     // Split training and test data
     val training :: test :: Nil = splitData(
       df.withColumn("labelString", df(labelColumn).cast(StringType)),

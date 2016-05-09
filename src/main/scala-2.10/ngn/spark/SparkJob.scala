@@ -2,27 +2,29 @@ package ngn.spark
 
 import org.apache.log4j.Logger
 import org.apache.spark.SparkContext
+import org.apache.spark.sql.SQLContext
 
 abstract trait SparkJob[U] {
   @transient lazy val log = Logger.getLogger(getClass.getName)
 
   var next: Option[(U) => SparkJob[_]] = None
 
-  def execute(implicit sc: SparkContext): U
+  def execute(implicit sc: SparkContext, sqlContext: SQLContext): U
 
-  def run(implicit sc: SparkContext): Unit = {
+  def run(implicit sc: SparkContext, sqlContext: SQLContext): Unit = {
     val start = System.currentTimeMillis()
-    log.info(s"job execution started")
+    log.fatal(s"   job execution started")
     val res = execute
-    log.info(s"job execution done in ${(System.currentTimeMillis() - start) / 100 / 10.0}s")
+    log.fatal(s"   job execution done in ${(System.currentTimeMillis() - start) / 100 / 10.0}s")
 
     next match {
-      case None => execute
+      case None => log.fatal("\n\nNo job found. End of Pipeline.\n\n")
       case Some(e) =>
         val job = e(res)
-        log.info(s"Next job ${job.getClass} detected")
+        log.fatal(s" \n\nNext job ${job.getClass} detected\n\n")
 
-        job.run(sc)
+        job.run(sc, sqlContext)
+
     }
   }
 
